@@ -116,7 +116,7 @@ export async function getAllPosts(filterParams?: {
     }
   }
 
-  const url = getUrl("/personal/wp-json/wp/v2/posts", query);
+  const url = getUrl("/wp-json/wp/v2/posts", query);
   return wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -126,7 +126,7 @@ export async function getAllPosts(filterParams?: {
 }
 
 export async function getPostById(id: number): Promise<Post> {
-  const url = getUrl(`/personal/wp-json/wp/v2/posts/${id}`);
+  const url = getUrl(`/wp-json/wp/v2/posts/${id}`);
   const response = await wordpressFetch<Post>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -138,7 +138,7 @@ export async function getPostById(id: number): Promise<Post> {
 }
 
 export async function getPostBySlug(slug: string): Promise<Post> {
-  const url = getUrl("/personal/wp-json/wp/v2/posts", { slug });
+  const url = getUrl("/wp-json/wp/v2/posts", { slug });
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -186,9 +186,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category> {
 }
 
 export async function getPostsByCategory(categoryId: number): Promise<Post[]> {
-  const url = getUrl("/personal/wp-json/wp/v2/posts", {
-    categories: categoryId,
-  });
+  const url = getUrl("/wp-json/wp/v2/posts", { categories: categoryId });
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -200,7 +198,7 @@ export async function getPostsByCategory(categoryId: number): Promise<Post[]> {
 }
 
 export async function getPostsByTag(tagId: number): Promise<Post[]> {
-  const url = getUrl("/personal/wp-json/wp/v2/posts", { tags: tagId });
+  const url = getUrl("/wp-json/wp/v2/posts", { tags: tagId });
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -332,7 +330,7 @@ export async function getAuthorBySlug(slug: string): Promise<Author> {
 }
 
 export async function getPostsByAuthor(authorId: number): Promise<Post[]> {
-  const url = getUrl("/personal/wp-json/wp/v2/posts", { author: authorId });
+  const url = getUrl("/wp-json/wp/v2/posts", { author: authorId });
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -347,7 +345,7 @@ export async function getPostsByAuthorSlug(
   authorSlug: string
 ): Promise<Post[]> {
   const author = await getAuthorBySlug(authorSlug);
-  const url = getUrl("/personal/wp-json/wp/v2/posts", { author: author.id });
+  const url = getUrl("/wp-json/wp/v2/posts", { author: author.id });
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -362,9 +360,7 @@ export async function getPostsByCategorySlug(
   categorySlug: string
 ): Promise<Post[]> {
   const category = await getCategoryBySlug(categorySlug);
-  const url = getUrl("/personal/wp-json/wp/v2/posts", {
-    categories: category.id,
-  });
+  const url = getUrl("/wp-json/wp/v2/posts", { categories: category.id });
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -377,7 +373,7 @@ export async function getPostsByCategorySlug(
 
 export async function getPostsByTagSlug(tagSlug: string): Promise<Post[]> {
   const tag = await getTagBySlug(tagSlug);
-  const url = getUrl("/personal/wp-json/wp/v2/posts", { tags: tag.id });
+  const url = getUrl("/wp-json/wp/v2/posts", { tags: tag.id });
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
