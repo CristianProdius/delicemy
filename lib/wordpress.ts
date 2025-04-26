@@ -1,5 +1,5 @@
-// Description: WordPress API functions
-// Used to fetch data from a WordPress site using the WordPress REST API
+// Description: WordPress API functions for multisite installation
+// Updated to properly handle multisite with subdirectory structure
 // Types are imported from `wp.d.ts`
 
 import querystring from "query-string";
@@ -14,7 +14,7 @@ import type {
   FeaturedMedia,
 } from "./wordpress.d";
 
-// WordPress Config
+// WordPress Multisite Config
 const baseUrl = process.env.WORDPRESS_URL;
 
 if (!baseUrl) {
@@ -30,8 +30,14 @@ interface FetchOptions {
 }
 
 function getUrl(path: string, query?: Record<string, any>) {
+  // Remove /personal from baseUrl if it exists in the path
+  const cleanPath = path.replace("/personal", "");
   const params = query ? querystring.stringify(query) : null;
-  return `${baseUrl}${path}${params ? `?${params}` : ""}`;
+
+  // For multisite, we need to ensure the /personal path is included
+  // when accessing the REST API endpoints
+  const apiPath = `/wp-json/wp/v2${cleanPath.replace("/wp-json/wp/v2", "")}`;
+  return `${baseUrl}${apiPath}${params ? `?${params}` : ""}`;
 }
 
 // Default fetch options for WordPress API calls
@@ -57,23 +63,35 @@ async function wordpressFetch<T>(
 ): Promise<T> {
   const userAgent = "Next.js WordPress Client";
 
-  const response = await fetch(url, {
-    ...defaultFetchOptions,
-    ...options,
-    headers: {
-      "User-Agent": userAgent,
-    },
-  });
+  try {
+    const response = await fetch(url, {
+      ...defaultFetchOptions,
+      ...options,
+      headers: {
+        "User-Agent": userAgent,
+      },
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      throw new WordPressAPIError(
+        `WordPress API request failed: ${response.statusText}`,
+        response.status,
+        url
+      );
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof WordPressAPIError) {
+      throw error;
+    }
+    // Re-throw with more context
     throw new WordPressAPIError(
-      `WordPress API request failed: ${response.statusText}`,
-      response.status,
+      `Network error while fetching ${url}: ${(error as Error).message}`,
+      0,
       url
     );
   }
-
-  return response.json();
 }
 
 // WordPress Functions
@@ -116,7 +134,7 @@ export async function getAllPosts(filterParams?: {
     }
   }
 
-  const url = getUrl("/wp-json/wp/v2/posts", query);
+  const url = getUrl("/posts", query);
   return wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -126,7 +144,7 @@ export async function getAllPosts(filterParams?: {
 }
 
 export async function getPostById(id: number): Promise<Post> {
-  const url = getUrl(`/wp-json/wp/v2/posts/${id}`);
+  const url = getUrl(`/posts/${id}`);
   const response = await wordpressFetch<Post>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -138,19 +156,33 @@ export async function getPostById(id: number): Promise<Post> {
 }
 
 export async function getPostBySlug(slug: string): Promise<Post> {
-  const url = getUrl("/wp-json/wp/v2/posts", { slug });
-  const response = await wordpressFetch<Post[]>(url, {
-    next: {
-      ...defaultFetchOptions.next,
-      tags: ["wordpress", `post-${slug}`],
-    },
-  });
+  const url = getUrl("/posts", { slug });
 
-  return response[0];
+  try {
+    const response = await wordpressFetch<Post[]>(url, {
+      next: {
+        ...defaultFetchOptions.next,
+        tags: ["wordpress", `post-${slug}`],
+      },
+    });
+
+    if (!response || response.length === 0) {
+      throw new WordPressAPIError(
+        `Post with slug "${slug}" not found`,
+        404,
+        url
+      );
+    }
+
+    return response[0];
+  } catch (error) {
+    console.error(`Error fetching post with slug "${slug}":`, error);
+    throw error;
+  }
 }
 
 export async function getAllCategories(): Promise<Category[]> {
-  const url = getUrl("/wp-json/wp/v2/categories");
+  const url = getUrl("/categories");
   const response = await wordpressFetch<Category[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -162,7 +194,7 @@ export async function getAllCategories(): Promise<Category[]> {
 }
 
 export async function getCategoryById(id: number): Promise<Category> {
-  const url = getUrl(`/wp-json/wp/v2/categories/${id}`);
+  const url = getUrl(`/categories/${id}`);
   const response = await wordpressFetch<Category>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -174,7 +206,7 @@ export async function getCategoryById(id: number): Promise<Category> {
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category> {
-  const url = getUrl("/wp-json/wp/v2/categories", { slug });
+  const url = getUrl("/categories", { slug });
   const response = await wordpressFetch<Category[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -182,11 +214,19 @@ export async function getCategoryBySlug(slug: string): Promise<Category> {
     },
   });
 
+  if (!response || response.length === 0) {
+    throw new WordPressAPIError(
+      `Category with slug "${slug}" not found`,
+      404,
+      url
+    );
+  }
+
   return response[0];
 }
 
 export async function getPostsByCategory(categoryId: number): Promise<Post[]> {
-  const url = getUrl("/wp-json/wp/v2/posts", { categories: categoryId });
+  const url = getUrl("/posts", { categories: categoryId });
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -198,7 +238,7 @@ export async function getPostsByCategory(categoryId: number): Promise<Post[]> {
 }
 
 export async function getPostsByTag(tagId: number): Promise<Post[]> {
-  const url = getUrl("/wp-json/wp/v2/posts", { tags: tagId });
+  const url = getUrl("/posts", { tags: tagId });
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -210,7 +250,7 @@ export async function getPostsByTag(tagId: number): Promise<Post[]> {
 }
 
 export async function getTagsByPost(postId: number): Promise<Tag[]> {
-  const url = getUrl("/wp-json/wp/v2/tags", { post: postId });
+  const url = getUrl("/tags", { post: postId });
   const response = await wordpressFetch<Tag[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -222,7 +262,7 @@ export async function getTagsByPost(postId: number): Promise<Tag[]> {
 }
 
 export async function getAllTags(): Promise<Tag[]> {
-  const url = getUrl("/wp-json/wp/v2/tags");
+  const url = getUrl("/tags");
   const response = await wordpressFetch<Tag[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -234,7 +274,7 @@ export async function getAllTags(): Promise<Tag[]> {
 }
 
 export async function getTagById(id: number): Promise<Tag> {
-  const url = getUrl(`/wp-json/wp/v2/tags/${id}`);
+  const url = getUrl(`/tags/${id}`);
   const response = await wordpressFetch<Tag>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -246,7 +286,7 @@ export async function getTagById(id: number): Promise<Tag> {
 }
 
 export async function getTagBySlug(slug: string): Promise<Tag> {
-  const url = getUrl("/wp-json/wp/v2/tags", { slug });
+  const url = getUrl("/tags", { slug });
   const response = await wordpressFetch<Tag[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -254,11 +294,15 @@ export async function getTagBySlug(slug: string): Promise<Tag> {
     },
   });
 
+  if (!response || response.length === 0) {
+    throw new WordPressAPIError(`Tag with slug "${slug}" not found`, 404, url);
+  }
+
   return response[0];
 }
 
 export async function getAllPages(): Promise<Page[]> {
-  const url = getUrl("/wp-json/wp/v2/pages");
+  const url = getUrl("/pages");
   const response = await wordpressFetch<Page[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -270,7 +314,7 @@ export async function getAllPages(): Promise<Page[]> {
 }
 
 export async function getPageById(id: number): Promise<Page> {
-  const url = getUrl(`/wp-json/wp/v2/pages/${id}`);
+  const url = getUrl(`/pages/${id}`);
   const response = await wordpressFetch<Page>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -282,7 +326,7 @@ export async function getPageById(id: number): Promise<Page> {
 }
 
 export async function getPageBySlug(slug: string): Promise<Page> {
-  const url = getUrl("/wp-json/wp/v2/pages", { slug });
+  const url = getUrl("/pages", { slug });
   const response = await wordpressFetch<Page[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -290,11 +334,15 @@ export async function getPageBySlug(slug: string): Promise<Page> {
     },
   });
 
+  if (!response || response.length === 0) {
+    throw new WordPressAPIError(`Page with slug "${slug}" not found`, 404, url);
+  }
+
   return response[0];
 }
 
 export async function getAllAuthors(): Promise<Author[]> {
-  const url = getUrl("/wp-json/wp/v2/users");
+  const url = getUrl("/users");
   const response = await wordpressFetch<Author[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -306,7 +354,7 @@ export async function getAllAuthors(): Promise<Author[]> {
 }
 
 export async function getAuthorById(id: number): Promise<Author> {
-  const url = getUrl(`/wp-json/wp/v2/users/${id}`);
+  const url = getUrl(`/users/${id}`);
   const response = await wordpressFetch<Author>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -318,7 +366,7 @@ export async function getAuthorById(id: number): Promise<Author> {
 }
 
 export async function getAuthorBySlug(slug: string): Promise<Author> {
-  const url = getUrl("/wp-json/wp/v2/users", { slug });
+  const url = getUrl("/users", { slug });
   const response = await wordpressFetch<Author[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -326,11 +374,19 @@ export async function getAuthorBySlug(slug: string): Promise<Author> {
     },
   });
 
+  if (!response || response.length === 0) {
+    throw new WordPressAPIError(
+      `Author with slug "${slug}" not found`,
+      404,
+      url
+    );
+  }
+
   return response[0];
 }
 
 export async function getPostsByAuthor(authorId: number): Promise<Post[]> {
-  const url = getUrl("/wp-json/wp/v2/posts", { author: authorId });
+  const url = getUrl("/posts", { author: authorId });
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -345,7 +401,7 @@ export async function getPostsByAuthorSlug(
   authorSlug: string
 ): Promise<Post[]> {
   const author = await getAuthorBySlug(authorSlug);
-  const url = getUrl("/wp-json/wp/v2/posts", { author: author.id });
+  const url = getUrl("/posts", { author: author.id });
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -360,7 +416,7 @@ export async function getPostsByCategorySlug(
   categorySlug: string
 ): Promise<Post[]> {
   const category = await getCategoryBySlug(categorySlug);
-  const url = getUrl("/wp-json/wp/v2/posts", { categories: category.id });
+  const url = getUrl("/posts", { categories: category.id });
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -373,7 +429,7 @@ export async function getPostsByCategorySlug(
 
 export async function getPostsByTagSlug(tagSlug: string): Promise<Post[]> {
   const tag = await getTagBySlug(tagSlug);
-  const url = getUrl("/wp-json/wp/v2/posts", { tags: tag.id });
+  const url = getUrl("/posts", { tags: tag.id });
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -385,7 +441,7 @@ export async function getPostsByTagSlug(tagSlug: string): Promise<Post[]> {
 }
 
 export async function getFeaturedMediaById(id: number): Promise<FeaturedMedia> {
-  const url = getUrl(`/wp-json/wp/v2/media/${id}`);
+  const url = getUrl(`/media/${id}`);
   const response = await wordpressFetch<FeaturedMedia>(url, {
     next: {
       ...defaultFetchOptions.next,
@@ -398,7 +454,7 @@ export async function getFeaturedMediaById(id: number): Promise<FeaturedMedia> {
 
 // Helper function to search across categories
 export async function searchCategories(query: string): Promise<Category[]> {
-  const url = getUrl("/wp-json/wp/v2/categories", {
+  const url = getUrl("/categories", {
     search: query,
     per_page: 100,
   });
@@ -407,7 +463,7 @@ export async function searchCategories(query: string): Promise<Category[]> {
 
 // Helper function to search across tags
 export async function searchTags(query: string): Promise<Tag[]> {
-  const url = getUrl("/wp-json/wp/v2/tags", {
+  const url = getUrl("/tags", {
     search: query,
     per_page: 100,
   });
@@ -416,7 +472,7 @@ export async function searchTags(query: string): Promise<Tag[]> {
 
 // Helper function to search across authors
 export async function searchAuthors(query: string): Promise<Author[]> {
-  const url = getUrl("/wp-json/wp/v2/users", {
+  const url = getUrl("/users", {
     search: query,
     per_page: 100,
   });
