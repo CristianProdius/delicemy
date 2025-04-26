@@ -1,18 +1,8 @@
-# Next.js Starter for WordPress Headless CMS
-
-> [Watch the Demo Video](https://www.youtube.com/watch?v=JZc1-BcOvYw)
-
-![CleanShot 2025-01-07 at 23 18 41@2x](https://github.com/user-attachments/assets/8b268c36-eb0d-459f-b9f1-b5f129bd29bc)
-
-[![Deploy with Vercel](https://vercel.com/button)](<https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2F9d8dev%2Fnext-wp&env=WORDPRESS_URL,WORDPRESS_HOSTNAME,WORDPRESS_WEBHOOK_SECRET&envDescription=Add%20WordPress%20URL%20with%20Rest%20API%20enabled%20(ie.%20https%3A%2F%2Fwp.example.com)%2C%20the%20hostname%20for%20Image%20rendering%20in%20Next%20JS%20(ie.%20wp.example.com)%2C%20and%20a%20secret%20key%20for%20secure%20revalidation&project-name=next-wp&repository-name=next-wp&demo-title=Next%20JS%20and%20WordPress%20Starter&demo-url=https%3A%2F%2Fwp.9d8.dev>)
-
-This is a starter template for building a Next.js application that fetches data from a WordPress site using the WordPress REST API. The template includes functions for fetching posts, categories, tags, authors, and featured media from a WordPress site and rendering them in a Next.js application.
-
-`next-wp` is built with [Next.js 15](https://nextjs.org/docs), [React](https://react.dev/), [Typescript](https://www.typescriptlang.org/docs/), [Tailwind](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/docs), and [brijr/craft](https://github.com/brijr/craft). It pairs nicely with [brijr/components](https://components.bridger.to/) for a rapid development experience. Built by Cameron and Bridger at [9d8](https://9d8.dev).
+# Delice my
 
 ## Table of Contents
 
-- [Next.js Starter for WordPress Headless CMS](#nextjs-starter-for-wordpress-headless-cms)
+- [Delice]
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
   - [WordPress Functions](#wordpress-functions)
@@ -133,11 +123,7 @@ All functions use the custom `WordPressAPIError` class for consistent error hand
 
 ```typescript
 class WordPressAPIError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-    public endpoint: string,
-  ) {
+  constructor(message: string, public status: number, public endpoint: string) {
     super(message);
     this.name = "WordPressAPIError";
   }
@@ -321,7 +307,7 @@ Located in `components/posts/search-input.tsx`, the SearchInput component provid
 // Usage example
 import { SearchInput } from "@/components/posts/search-input";
 
-<SearchInput defaultValue={search} />
+<SearchInput defaultValue={search} />;
 ```
 
 Features:
@@ -469,5 +455,3 @@ await revalidateWordPressData(["category-456"]);
 ```
 
 This system ensures your content stays fresh while maintaining optimal performance through intelligent caching.
-
-Built by [Bridger Tower](https://twitter.com/bridgertower) and [Cameron Youngblood](https://twitter.com/youngbloodcyb) at [9d8](https://9d8.dev)
