@@ -1,3 +1,4 @@
+// app/[locale]/pages/page.tsx
 import { getAllPages } from "@/lib/wordpress";
 import { Section, Container, Prose } from "@/components/craft";
 import { Metadata } from "next";
@@ -12,8 +13,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Page() {
-  const pages = await getAllPages();
+interface PageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function Page({ params }: PageProps) {
+  const { locale } = await params;
+  const pages = await getAllPages(locale); // Pass locale to getAllPages
 
   return (
     <Section>
@@ -23,7 +29,9 @@ export default async function Page() {
           <ul className="grid">
             {pages.map((page: any) => (
               <li key={page.id}>
-                <Link href={`/pages/${page.slug}`}>{page.title.rendered}</Link>
+                <Link href={`/${locale}/${page.slug}`}>
+                  {page.title.rendered}
+                </Link>
               </li>
             ))}
           </ul>
