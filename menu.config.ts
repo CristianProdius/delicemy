@@ -1,12 +1,18 @@
-// Update menu.config.ts
-export const getMainMenu = (locale: string) => ({
-  home: `/${locale}`,
-  about: "https://github.com/9d8dev/next-wp",
-  blog: `/${locale}/posts`,
-});
+// menu.config.ts
+export function getMainMenu(locale: string) {
+  return {
+    home: `/${locale}`,
+    about: `/${locale}/about`,
+    blog: `/${locale}/posts`,
+    contact: `/${locale}/contact`,
+  };
+}
 
-export const getContentMenu = (locale: string) => ({
-  categories: `/${locale}/posts/categories`,
-  tags: `/${locale}/posts/tags`,
-  authors: `/${locale}/posts/authors`,
-});
+export function getContentMenu(locale: string) {
+  return {
+    latest: `/${locale}/posts`,
+    categories: `/${locale}/categories`,
+    authors: `/${locale}/authors`,
+    tags: `/${locale}/tags`,
+  };
+}

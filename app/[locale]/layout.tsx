@@ -17,7 +17,7 @@ import { LanguageSwitcher } from "@/components/langSwitcher/language-switcher";
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }
 
 interface NavProps {
@@ -27,10 +27,12 @@ interface NavProps {
   locale: string;
 }
 
-export default function LocaleLayout({
+export default async function LocaleLayout({
   children,
-  params: { locale },
+  params,
 }: LocaleLayoutProps) {
+  const { locale } = (await params) || { locale: "ro" }; // Default to your default locale
+
   return (
     <>
       <Nav locale={locale} />
@@ -139,7 +141,7 @@ const Footer = ({ locale }: { locale: string }) => {
         <Container className="border-t not-prose flex flex-col md:flex-row md:gap-2 gap-6 justify-between md:items-center">
           <ThemeToggle />
           <p className="text-muted-foreground">
-            &copy; <a href="https://9d8.dev">9d8</a>. All rights reserved.
+            &copy; <a href="https://9d8.dev">Delice</a>. All rights reserved.
             2025-present.
           </p>
         </Container>
