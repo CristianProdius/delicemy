@@ -1,11 +1,10 @@
+// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  i18n: {
-    locales: ["en", "ro", "ru"], // Add your supported languages
-    defaultLocale: "ro",
-  },
   images: {
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
       {
         protocol: "https",
@@ -14,6 +13,7 @@ const nextConfig: NextConfig = {
         pathname: "/personal/**",
       },
     ],
+    domains: [],
   },
   async redirects() {
     return [

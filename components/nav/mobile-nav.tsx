@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 
-import { mainMenu, contentMenu } from "@/menu.config";
+import { getMainMenu, getContentMenu } from "@/menu.config";
 import { siteConfig } from "@/site.config";
 
 export function MobileNav() {
@@ -55,14 +55,14 @@ export function MobileNav() {
           <div className="flex flex-col space-y-3">
             <h3 className="text-small mt-6">Menu</h3>
             <Separator />
-            {Object.entries(mainMenu).map(([key, href]) => (
+            {Object.entries(getMainMenu).map(([key, href]) => (
               <MobileLink key={key} href={href} onOpenChange={setOpen}>
                 {key.charAt(0).toUpperCase() + key.slice(1)}
               </MobileLink>
             ))}
             <h3 className="text-small pt-6">Blog Menu</h3>
             <Separator />
-            {Object.entries(contentMenu).map(([key, href]) => (
+            {Object.entries(getContentMenu).map(([key, href]) => (
               <MobileLink key={key} href={href} onOpenChange={setOpen}>
                 {key.charAt(0).toUpperCase() + key.slice(1)}
               </MobileLink>

@@ -418,11 +418,14 @@ export async function getPageBySlug(
   slug: string,
   lang?: string
 ): Promise<Page> {
-  const query: Record<string, any> = { slug };
+  const query: Record<string, any> = {
+    slug,
+    acf_format: "standard", // This tells WP to include ACF data
+    _fields: "id,title,content,excerpt,slug,acf,lang,translations", // Include acf in fields
+  };
   if (lang) {
     query.lang = lang;
   }
-
   const url = getUrl("/wp-json/wp/v2/pages", query);
   const response = await wordpressFetch<Page[]>(url, {
     next: {
@@ -585,17 +588,38 @@ export async function getTranslatedPost(
 }
 
 export async function getAvailableLanguages(): Promise<
-  { code: string; name: string }[]
+  {
+    code: string;
+    name: string;
+    slug: string;
+    locale: string;
+    flag?: string;
+  }[]
 > {
   const url = getUrl("/wp-json/pll/v1/languages");
-  const response = await wordpressFetch<{ code: string; name: string }[]>(url, {
+  const response = await wordpressFetch<
+    Array<{
+      code: string;
+      name: string;
+      slug: string;
+      locale: string;
+      flag?: string;
+      url?: string;
+    }>
+  >(url, {
     next: {
       ...defaultFetchOptions.next,
       tags: ["wordpress", "languages"],
     },
   });
 
-  return response;
+  return response.map((lang) => ({
+    code: lang.code || lang.slug,
+    name: lang.name,
+    slug: lang.slug,
+    locale: lang.locale,
+    flag: lang.flag,
+  }));
 }
 
 export async function getPostsByCategorySlug(

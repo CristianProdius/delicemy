@@ -84,6 +84,18 @@ export interface Post extends WPEntity {
   translations?: PolylangTranslations;
 }
 
+// ACF Field Types
+export interface ACFFields {
+  [key: string]: any;
+}
+
+// ACF for 404 Page
+export interface ACF404Page {
+  button_text?: string;
+  button_link?: string;
+  show_search_box?: boolean;
+}
+
 export interface Page extends WPEntity {
   title: RenderedTitle;
   content: RenderedContent;
@@ -98,6 +110,7 @@ export interface Page extends WPEntity {
   meta: Record<string, unknown>;
   lang?: string;
   translations?: PolylangTranslations;
+  acf?: ACFFields | ACF404Page;
 }
 
 // Taxonomy types
@@ -241,4 +254,8 @@ export interface FilterBarProps {
   onAuthorChange?: (authorId: Author["id"] | undefined) => void;
   onTagChange?: (tagId: Tag["id"] | undefined) => void;
   onCategoryChange?: (categoryId: Category["id"] | undefined) => void;
+}
+
+export interface Page404 extends Page {
+  acf?: ACF404Page;
 }
