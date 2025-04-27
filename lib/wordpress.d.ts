@@ -38,6 +38,10 @@ interface MediaDetails {
   sizes: Record<string, MediaSize>;
 }
 
+export interface PolylangTranslations {
+  [locale: string]: number;
+}
+
 export interface FeaturedMedia extends WPEntity {
   title: RenderedTitle;
   author: number;
@@ -76,6 +80,8 @@ export interface Post extends WPEntity {
   categories: number[];
   tags: number[];
   meta: Record<string, unknown>;
+  lang?: string;
+  translations?: PolylangTranslations;
 }
 
 export interface Page extends WPEntity {
@@ -90,6 +96,8 @@ export interface Page extends WPEntity {
   ping_status: "open" | "closed";
   template: string;
   meta: Record<string, unknown>;
+  lang?: string;
+  translations?: PolylangTranslations;
 }
 
 // Taxonomy types
@@ -106,10 +114,14 @@ interface Taxonomy {
 export interface Category extends Taxonomy {
   taxonomy: "category";
   parent: number;
+  lang?: string;
+  translations?: PolylangTranslations;
 }
 
 export interface Tag extends Taxonomy {
   taxonomy: "post_tag";
+  lang?: string;
+  translations?: PolylangTranslations;
 }
 
 export interface Author {

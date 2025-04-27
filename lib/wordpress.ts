@@ -83,11 +83,16 @@ export async function getAllPosts(filterParams?: {
   tag?: string;
   category?: string;
   search?: string;
+  lang?: string;
 }): Promise<Post[]> {
   const query: Record<string, any> = {
     _embed: true,
     per_page: 100,
   };
+
+  if (filterParams?.lang) {
+    query.lang = filterParams.lang;
+  }
 
   if (filterParams?.search) {
     // Search in post content and title
@@ -120,7 +125,11 @@ export async function getAllPosts(filterParams?: {
   return wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
-      tags: ["wordpress", "posts"],
+      tags: [
+        "wordpress",
+        "posts",
+        filterParams?.lang ? `posts-${filterParams.lang}` : "",
+      ].filter(Boolean),
     },
   });
 }
@@ -137,24 +146,44 @@ export async function getPostById(id: number): Promise<Post> {
   return response;
 }
 
-export async function getPostBySlug(slug: string): Promise<Post> {
-  const url = getUrl("/wp-json/wp/v2/posts", { slug });
+export async function getPostBySlug(
+  slug: string,
+  lang?: string
+): Promise<Post> {
+  const query: Record<string, any> = { slug };
+  if (lang) {
+    query.lang = lang;
+  }
+  const url = getUrl("/wp-json/wp/v2/posts", query);
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
-      tags: ["wordpress", `post-${slug}`],
+      tags: [
+        "wordpress",
+        `post-${slug}`,
+        lang ? `post-${slug}-${lang}` : "",
+      ].filter(Boolean),
     },
   });
 
   return response[0];
 }
 
-export async function getAllCategories(): Promise<Category[]> {
-  const url = getUrl("/wp-json/wp/v2/categories");
+export async function getAllCategories(lang?: string): Promise<Category[]> {
+  const query: Record<string, any> = {};
+  if (lang) {
+    query.lang = lang;
+  }
+
+  const url = getUrl("/wp-json/wp/v2/categories", query);
   const response = await wordpressFetch<Category[]>(url, {
     next: {
       ...defaultFetchOptions.next,
-      tags: ["wordpress", "categories"],
+      tags: [
+        "wordpress",
+        "categories",
+        lang ? `categories-${lang}` : "",
+      ].filter(Boolean),
     },
   });
 
@@ -185,24 +214,48 @@ export async function getCategoryBySlug(slug: string): Promise<Category> {
   return response[0];
 }
 
-export async function getPostsByCategory(categoryId: number): Promise<Post[]> {
-  const url = getUrl("/wp-json/wp/v2/posts", { categories: categoryId });
+export async function getPostsByCategory(
+  categoryId: number,
+  lang?: string
+): Promise<Post[]> {
+  const query: Record<string, any> = { categories: categoryId };
+  if (lang) {
+    query.lang = lang;
+  }
+
+  const url = getUrl("/wp-json/wp/v2/posts", query);
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
-      tags: ["wordpress", `category-${categoryId}`],
+      tags: [
+        "wordpress",
+        `category-${categoryId}`,
+        lang ? `category-${categoryId}-${lang}` : "",
+      ].filter(Boolean),
     },
   });
 
   return response;
 }
 
-export async function getPostsByTag(tagId: number): Promise<Post[]> {
-  const url = getUrl("/wp-json/wp/v2/posts", { tags: tagId });
+export async function getPostsByTag(
+  tagId: number,
+  lang?: string
+): Promise<Post[]> {
+  const query: Record<string, any> = { tags: tagId };
+  if (lang) {
+    query.lang = lang;
+  }
+
+  const url = getUrl("/wp-json/wp/v2/posts", query);
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
-      tags: ["wordpress", `tag-${tagId}`],
+      tags: [
+        "wordpress",
+        `tag-${tagId}`,
+        lang ? `tag-${tagId}-${lang}` : "",
+      ].filter(Boolean),
     },
   });
 
@@ -221,12 +274,17 @@ export async function getTagsByPost(postId: number): Promise<Tag[]> {
   return response;
 }
 
-export async function getAllTags(): Promise<Tag[]> {
-  const url = getUrl("/wp-json/wp/v2/tags");
+export async function getAllTags(lang?: string): Promise<Tag[]> {
+  const query: Record<string, any> = {};
+  if (lang) {
+    query.lang = lang;
+  }
+
+  const url = getUrl("/wp-json/wp/v2/tags", query);
   const response = await wordpressFetch<Tag[]>(url, {
     next: {
       ...defaultFetchOptions.next,
-      tags: ["wordpress", "tags"],
+      tags: ["wordpress", "tags", lang ? `tags-${lang}` : ""].filter(Boolean),
     },
   });
 
@@ -257,12 +315,17 @@ export async function getTagBySlug(slug: string): Promise<Tag> {
   return response[0];
 }
 
-export async function getAllPages(): Promise<Page[]> {
-  const url = getUrl("/wp-json/wp/v2/pages");
+export async function getAllPages(lang?: string): Promise<Page[]> {
+  const query: Record<string, any> = {};
+  if (lang) {
+    query.lang = lang;
+  }
+
+  const url = getUrl("/wp-json/wp/v2/pages", query);
   const response = await wordpressFetch<Page[]>(url, {
     next: {
       ...defaultFetchOptions.next,
-      tags: ["wordpress", "pages"],
+      tags: ["wordpress", "pages", lang ? `pages-${lang}` : ""].filter(Boolean),
     },
   });
 
@@ -281,12 +344,24 @@ export async function getPageById(id: number): Promise<Page> {
   return response;
 }
 
-export async function getPageBySlug(slug: string): Promise<Page> {
-  const url = getUrl("/wp-json/wp/v2/pages", { slug });
+export async function getPageBySlug(
+  slug: string,
+  lang?: string
+): Promise<Page> {
+  const query: Record<string, any> = { slug };
+  if (lang) {
+    query.lang = lang;
+  }
+
+  const url = getUrl("/wp-json/wp/v2/pages", query);
   const response = await wordpressFetch<Page[]>(url, {
     next: {
       ...defaultFetchOptions.next,
-      tags: ["wordpress", `page-${slug}`],
+      tags: [
+        "wordpress",
+        `page-${slug}`,
+        lang ? `page-${slug}-${lang}` : "",
+      ].filter(Boolean),
     },
   });
 
@@ -329,12 +404,24 @@ export async function getAuthorBySlug(slug: string): Promise<Author> {
   return response[0];
 }
 
-export async function getPostsByAuthor(authorId: number): Promise<Post[]> {
-  const url = getUrl("/wp-json/wp/v2/posts", { author: authorId });
+export async function getPostsByAuthor(
+  authorId: number,
+  lang?: string
+): Promise<Post[]> {
+  const query: Record<string, any> = { author: authorId };
+  if (lang) {
+    query.lang = lang;
+  }
+
+  const url = getUrl("/wp-json/wp/v2/posts", query);
   const response = await wordpressFetch<Post[]>(url, {
     next: {
       ...defaultFetchOptions.next,
-      tags: ["wordpress", `author-${authorId}`],
+      tags: [
+        "wordpress",
+        `author-${authorId}`,
+        lang ? `author-${authorId}-${lang}` : "",
+      ].filter(Boolean),
     },
   });
 
@@ -350,6 +437,50 @@ export async function getPostsByAuthorSlug(
     next: {
       ...defaultFetchOptions.next,
       tags: ["wordpress", `author-${authorSlug}`],
+    },
+  });
+
+  return response;
+}
+
+export async function getPostTranslations(
+  postId: number
+): Promise<Record<string, number>> {
+  const url = getUrl(`/wp-json/wp/v2/posts/${postId}?_fields=translations`);
+  const response = await wordpressFetch<{
+    translations?: Record<string, number>;
+  }>(url, {
+    next: {
+      ...defaultFetchOptions.next,
+      tags: ["wordpress", `post-${postId}-translations`],
+    },
+  });
+
+  return response.translations || {};
+}
+
+export async function getTranslatedPost(
+  postId: number,
+  targetLang: string
+): Promise<Post | null> {
+  const translations = await getPostTranslations(postId);
+  const translatedId = translations[targetLang];
+
+  if (!translatedId) {
+    return null;
+  }
+
+  return getPostById(translatedId);
+}
+
+export async function getAvailableLanguages(): Promise<
+  { code: string; name: string }[]
+> {
+  const url = getUrl("/wp-json/pll/v1/languages");
+  const response = await wordpressFetch<{ code: string; name: string }[]>(url, {
+    next: {
+      ...defaultFetchOptions.next,
+      tags: ["wordpress", "languages"],
     },
   });
 
@@ -397,20 +528,33 @@ export async function getFeaturedMediaById(id: number): Promise<FeaturedMedia> {
 }
 
 // Helper function to search across categories
-export async function searchCategories(query: string): Promise<Category[]> {
-  const url = getUrl("/wp-json/wp/v2/categories", {
+export async function searchCategories(
+  query: string,
+  lang?: string
+): Promise<Category[]> {
+  const queryParams: Record<string, any> = {
     search: query,
     per_page: 100,
-  });
+  };
+  if (lang) {
+    queryParams.lang = lang;
+  }
+
+  const url = getUrl("/wp-json/wp/v2/categories", queryParams);
   return wordpressFetch<Category[]>(url);
 }
 
 // Helper function to search across tags
-export async function searchTags(query: string): Promise<Tag[]> {
-  const url = getUrl("/wp-json/wp/v2/tags", {
+export async function searchTags(query: string, lang?: string): Promise<Tag[]> {
+  const queryParams: Record<string, any> = {
     search: query,
     per_page: 100,
-  });
+  };
+  if (lang) {
+    queryParams.lang = lang;
+  }
+
+  const url = getUrl("/wp-json/wp/v2/tags", queryParams);
   return wordpressFetch<Tag[]>(url);
 }
 
