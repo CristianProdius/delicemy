@@ -1,3 +1,4 @@
+// components/posts/post-card.tsx
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,7 +11,12 @@ import {
   getCategoryById,
 } from "@/lib/wordpress";
 
-export async function PostCard({ post }: { post: Post }) {
+interface PostCardProps {
+  post: Post;
+  locale: string;
+}
+
+export async function PostCard({ post, locale }: PostCardProps) {
   const media = post.featured_media
     ? await getFeaturedMediaById(post.featured_media)
     : null;
@@ -26,7 +32,7 @@ export async function PostCard({ post }: { post: Post }) {
 
   return (
     <Link
-      href={`/posts/${post.slug}`}
+      href={`/${locale}/posts/${post.slug}`}
       className={cn(
         "border p-4 bg-accent/30 rounded-lg group flex justify-between flex-col not-prose gap-8",
         "hover:bg-accent/75 transition-all"

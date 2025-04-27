@@ -1,14 +1,15 @@
+// components/posts/filter.tsx
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"; // Ensure this is the correct import path
-import { Button } from "@/components/ui/button"; // Add this import for the Button component
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 interface Author {
   id: number;
@@ -32,6 +33,14 @@ interface FilterPostsProps {
   selectedAuthor?: string;
   selectedTag?: string;
   selectedCategory?: string;
+  locale: string;
+  translations: {
+    all_tags: string;
+    all_categories: string;
+    all_authors: string;
+    reset_filters: string;
+    [key: string]: string | undefined;
+  };
 }
 
 export function FilterPosts({
@@ -41,8 +50,11 @@ export function FilterPosts({
   selectedAuthor,
   selectedTag,
   selectedCategory,
+  translations,
 }: FilterPostsProps) {
   const router = useRouter();
+  const params = useParams();
+  const locale = params.locale as string;
 
   const handleFilterChange = (type: string, value: string) => {
     console.log(`Filter changed: ${type} -> ${value}`);
@@ -52,11 +64,11 @@ export function FilterPosts({
     } else {
       newParams.set(type, value);
     }
-    router.push(`/posts?${newParams.toString()}`);
+    router.push(`/${locale}/posts?${newParams.toString()}`);
   };
 
   const handleResetFilters = () => {
-    router.push("/posts");
+    router.push(`/${locale}/posts`);
   };
 
   return (
@@ -66,10 +78,10 @@ export function FilterPosts({
         onValueChange={(value) => handleFilterChange("tag", value)}
       >
         <SelectTrigger>
-          <SelectValue placeholder="All Tags" />
+          <SelectValue placeholder={translations.all_tags} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Tags</SelectItem>
+          <SelectItem value="all">{translations.all_tags}</SelectItem>
           {tags.map((tag) => (
             <SelectItem key={tag.id} value={tag.id.toString()}>
               {tag.name}
@@ -83,10 +95,10 @@ export function FilterPosts({
         onValueChange={(value) => handleFilterChange("category", value)}
       >
         <SelectTrigger>
-          <SelectValue placeholder="All Categories" />
+          <SelectValue placeholder={translations.all_categories} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Categories</SelectItem>
+          <SelectItem value="all">{translations.all_categories}</SelectItem>
           {categories.map((category) => (
             <SelectItem key={category.id} value={category.id.toString()}>
               {category.name}
@@ -100,10 +112,10 @@ export function FilterPosts({
         onValueChange={(value) => handleFilterChange("author", value)}
       >
         <SelectTrigger>
-          <SelectValue placeholder="All Authors" />
+          <SelectValue placeholder={translations.all_authors} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Authors</SelectItem>
+          <SelectItem value="all">{translations.all_authors}</SelectItem>
           {authors.map((author) => (
             <SelectItem key={author.id} value={author.id.toString()}>
               {author.name}
@@ -113,7 +125,7 @@ export function FilterPosts({
       </Select>
 
       <Button variant="outline" onClick={handleResetFilters}>
-        Reset Filters
+        {translations.reset_filters}
       </Button>
     </div>
   );

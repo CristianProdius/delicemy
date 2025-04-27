@@ -758,3 +758,13 @@ export async function revalidateWordPressData(tags: string[] = ["wordpress"]) {
 
 // Export error class for error handling
 export { WordPressAPIError };
+export {
+  getUrl,
+  wordpressFetch,
+  defaultFetchOptions,
+  type Page,
+  type Post,
+  type Author,
+  type Category,
+  type Tag,
+};

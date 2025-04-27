@@ -1,14 +1,29 @@
+// components/posts/search-input.tsx
 "use client";
 
 import { Input } from "@/components/ui/input";
-
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import {
+  useSearchParams,
+  useRouter,
+  usePathname,
+  useParams,
+} from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 
-export function SearchInput({ defaultValue }: { defaultValue?: string }) {
+interface SearchInputProps {
+  defaultValue?: string;
+  placeholder?: string;
+}
+
+export function SearchInput({
+  defaultValue,
+  placeholder = "Search posts...",
+}: SearchInputProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
+  const params = useParams();
+  const locale = params.locale as string;
 
   const handleSearch = useDebouncedCallback((term: string) => {
     const params = new URLSearchParams(searchParams);
@@ -17,14 +32,18 @@ export function SearchInput({ defaultValue }: { defaultValue?: string }) {
     } else {
       params.delete("search");
     }
-    replace(`${pathname}?${params.toString()}`);
+    // Construct the path with locale
+    const basePath = pathname.includes("/posts")
+      ? `/${locale}/posts`
+      : pathname;
+    replace(`${basePath}?${params.toString()}`);
   }, 300);
 
   return (
     <Input
       type="text"
       name="search"
-      placeholder="Search posts..."
+      placeholder={placeholder}
       defaultValue={defaultValue}
       onChange={(e) => handleSearch(e.target.value)}
     />

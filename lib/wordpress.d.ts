@@ -1,3 +1,5 @@
+import type { ACFFields, ACF404Page, ACFPostsPage } from "./wordpress-acf.d";
+
 // Common types that are reused across multiple entities
 interface WPEntity {
   id: number;
@@ -82,18 +84,6 @@ export interface Post extends WPEntity {
   meta: Record<string, unknown>;
   lang?: string;
   translations?: PolylangTranslations;
-}
-
-// ACF Field Types
-export interface ACFFields {
-  [key: string]: any;
-}
-
-// ACF for 404 Page
-export interface ACF404Page {
-  button_text?: string;
-  button_link?: string;
-  show_search_box?: boolean;
 }
 
 export interface Page extends WPEntity {
@@ -258,4 +248,8 @@ export interface FilterBarProps {
 
 export interface Page404 extends Page {
   acf?: ACF404Page;
+}
+
+export interface PostsPage extends Page {
+  acf?: ACFPostsPage;
 }
