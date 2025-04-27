@@ -9,7 +9,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Globe } from "lucide-react";
+import { Globe2, ChevronDown } from "lucide-react";
+import { cn } from "@/components/craft";
 
 interface Language {
   code: string;
@@ -37,14 +38,11 @@ export function LanguageSwitcherClient({
     "ro";
 
   const switchLanguage = (locale: string) => {
-    // Replace the current locale with the new one in the pathname
     let newPath = pathname;
 
-    // If the path starts with a locale, replace it
     if (languages.some((lang) => pathname.startsWith(`/${lang.code}`))) {
       newPath = pathname.replace(`/${currentLocale}`, `/${locale}`);
     } else {
-      // If no locale in path, add it
       newPath = `/${locale}${pathname}`;
     }
 
@@ -54,74 +52,103 @@ export function LanguageSwitcherClient({
   const currentLanguage = languages.find((lang) => lang.code === currentLocale);
 
   if (languages.length === 0) {
-    return null; // Don't render if no languages are available
+    return null;
   }
 
   // Function to render flag
   const FlagComponent = ({ flag }: { flag?: string }) => {
     if (!flag) return null;
 
-    // If the flag is an HTML string containing an img element
     if (typeof flag === "string" && flag.trim().startsWith("<img")) {
       return (
         <span
           dangerouslySetInnerHTML={{ __html: flag }}
-          className="inline-flex items-center mr-1"
+          className="inline-flex items-center w-5 h-5 overflow-hidden rounded-md shadow-sm"
         />
       );
     }
 
-    // If it's a direct base64 URL
     if (flag.startsWith("data:image")) {
       return (
         <img
           src={flag}
           alt="flag"
-          width={16}
-          height={11}
-          className="inline-block mr-1"
+          width={20}
+          height={20}
+          className="w-5 h-5 rounded-md object-cover shadow-sm"
         />
       );
     }
 
-    // If it's an emoji flag
     if (flag.length <= 4) {
-      // Flags are typically 2 characters or less
-      return <span className="mr-1">{flag}</span>;
+      return <span className="text-base">{flag}</span>;
     }
 
-    // Fallback: try to display as is
-    return <span className="mr-1">{flag}</span>;
+    return <span className="text-base">{flag}</span>;
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-2">
-          <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline-flex items-center">
-            <FlagComponent flag={currentLanguage?.flag} />
-            {currentLanguage?.name || currentLocale.toUpperCase()}
-          </span>
-          <span className="sm:hidden inline-flex items-center">
+        <Button
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "h-11 px-2 md:px-4 gap-1 md:gap-3 group",
+            "text-muted-foreground hover:text-foreground",
+            "transition-all duration-300",
+            "rounded-lg hover:bg-accent/50",
+            "relative overflow-hidden",
+            "flex-shrink-0"
+          )}
+        >
+          <div className="flex items-center gap-1 md:gap-3">
             {currentLanguage?.flag ? (
               <FlagComponent flag={currentLanguage.flag} />
             ) : (
-              currentLocale.toUpperCase()
+              <Globe2 className="h-4 w-4 md:h-5 md:w-5" />
             )}
-          </span>
+            <span className="text-sm font-medium hidden md:block">
+              {currentLanguage?.name || currentLocale.toUpperCase()}
+            </span>
+            <span className="text-sm font-medium md:hidden">
+              {currentLocale.toUpperCase()}
+            </span>
+            <ChevronDown className="h-3 w-3 md:h-4 md:w-4 transition-transform duration-300 group-hover:rotate-180" />
+          </div>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {languages.map((language) => (
+      <DropdownMenuContent
+        align="end"
+        sideOffset={10}
+        className={cn(
+          "min-w-[200px] p-2",
+          "bg-background/95 backdrop-blur-xl",
+          "border border-border/40",
+          "shadow-xl rounded-xl",
+          "animate-in fade-in-0 zoom-in-95"
+        )}
+      >
+        {languages.map((language, index) => (
           <DropdownMenuItem
             key={language.code}
             onClick={() => switchLanguage(language.code)}
-            className="inline-flex items-center gap-2"
+            className={cn(
+              "flex items-center gap-4 px-4 py-3 rounded-lg",
+              "transition-all duration-300",
+              "cursor-pointer",
+              language.code === currentLocale
+                ? "bg-accent text-accent-foreground"
+                : "hover:bg-accent/50",
+              "hover:translate-x-1"
+            )}
+            style={{
+              transitionDelay: `${index * 30}ms`,
+            }}
             disabled={language.code === currentLocale}
           >
             <FlagComponent flag={language.flag} />
-            {language.name}
+            <span className="text-sm font-medium">{language.name}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

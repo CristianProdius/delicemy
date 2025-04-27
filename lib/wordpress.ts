@@ -768,3 +768,39 @@ export {
   type Category,
   type Tag,
 };
+
+export async function getMenuByLanguage(lang: string): Promise<
+  Array<{
+    id: number;
+    title: string;
+    url: string;
+    target?: string;
+    parent?: number;
+    order?: number;
+  }>
+> {
+  const url = getUrl("/wp-json/wp/v2/menu", { lang });
+
+  try {
+    const response = await wordpressFetch<
+      Array<{
+        id: number;
+        title: string;
+        url: string;
+        target?: string;
+        parent?: number;
+        order?: number;
+      }>
+    >(url, {
+      next: {
+        ...defaultFetchOptions.next,
+        tags: ["wordpress", `menu-${lang}`],
+      },
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error fetching WordPress menu:", error);
+    return [];
+  }
+}

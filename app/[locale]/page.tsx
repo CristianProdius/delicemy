@@ -29,7 +29,7 @@ export default async function Home({ params }: PageProps) {
 // This is just some example TSX
 const ToDelete = ({ locale }: { locale: string }) => {
   return (
-    <main className="space-y-6">
+    <main className="space-y-6 ">
       <Prose>
         <h1>
           <Balancer>Delice Personal</Balancer>
