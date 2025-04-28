@@ -756,19 +756,6 @@ export async function revalidateWordPressData(tags: string[] = ["wordpress"]) {
   }
 }
 
-// Export error class for error handling
-export { WordPressAPIError };
-export {
-  getUrl,
-  wordpressFetch,
-  defaultFetchOptions,
-  type Page,
-  type Post,
-  type Author,
-  type Category,
-  type Tag,
-};
-
 export async function getMenuByLanguage(lang: string): Promise<
   Array<{
     id: number;
@@ -804,3 +791,16 @@ export async function getMenuByLanguage(lang: string): Promise<
     return [];
   }
 }
+
+// Export error class for error handling
+export { WordPressAPIError };
+export {
+  getUrl,
+  wordpressFetch,
+  defaultFetchOptions,
+  type Page,
+  type Post,
+  type Author,
+  type Category,
+  type Tag,
+};
