@@ -12,11 +12,12 @@ import {
 import { useState } from "react";
 
 import Image from "next/image";
+import Link from "next/link";
 
 // Updated DÉLICE Logo Component
 const DeliceLogo = () => {
   return (
-    <a
+    <Link
       href="/"
       className="relative z-20 mr-4 flex items-center space-x-3 px-2 py-1 text-sm font-normal text-black"
     >
@@ -25,7 +26,7 @@ const DeliceLogo = () => {
       <span className="font-medium text-[#B8956A] text-lg tracking-wide">
         Alexa Dell
       </span>
-    </a>
+    </Link>
   );
 };
 
@@ -98,14 +99,14 @@ export function Nav() {
             {/* Mobile Navigation Links */}
             <div className="w-full space-y-1">
               {navItems.map((item, idx) => (
-                <a
+                <Link
                   key={`mobile-link-${idx}`}
                   href={item.link}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block w-full px-4 py-3 text-neutral-700 hover:text-[#B8956A] hover:bg-[#B8956A]/5 rounded-lg transition-all duration-200 font-medium"
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
             </div>
 
