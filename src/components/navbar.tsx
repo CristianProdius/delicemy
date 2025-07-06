@@ -21,7 +21,6 @@ const DeliceLogo = () => {
       href="/"
       className="relative z-20 mr-4 flex items-center space-x-3 px-2 py-1 text-sm font-normal text-black"
     >
-      {/* Logo placeholder - you can replace this with your actual logo */}
       <Image src="/logo.png" alt="DÉLICE Logo" width={40} height={40} />
       <span className="font-medium text-[#B8956A] text-lg tracking-wide">
         Alexa Dell

@@ -1,3 +1,5 @@
+import { HeroSection, StrapiResponse } from "@/types/hero";
+
 const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
 
 export async function fetchAPI<T>(
@@ -27,4 +29,28 @@ export async function fetchAPI<T>(
   }
 
   return response.json();
+}
+
+/**
+ * Fetch Hero Section data
+ */
+// lib/strapi.ts
+export async function getHeroSection(): Promise<HeroSection | null> {
+  const token =
+    process.env.STRAPI_API_TOKEN || process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
+
+  try {
+    const data = await fetchAPI<StrapiResponse<HeroSection>>(
+      "/hero-section?populate=*", // This will populate all fields
+      {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      }
+    );
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching hero section:", error);
+    return null;
+  }
 }

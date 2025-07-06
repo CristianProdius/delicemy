@@ -7,15 +7,17 @@ import Hero from "../components/hero";
 import Products from "../../../../components/products";
 
 import { Service } from "@/types/strapi";
+import { HeroSection } from "@/types/hero";
 
-interface ProductsViewProps {
+interface HomeViewProps {
   services: Service[];
+  heroData: HeroSection | null;
 }
 
-export const HomeView = ({ services }: ProductsViewProps) => {
+export const HomeView = ({ services, heroData }: HomeViewProps) => {
   return (
     <>
-      <Hero />
+      <Hero heroData={heroData} />
       <Products services={services} />
       <About />
       <Contact />

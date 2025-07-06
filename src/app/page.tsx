@@ -1,5 +1,5 @@
 import { HomeView } from "@/modules/home/ui/views/home-view";
-import { fetchAPI } from "@/lib/strapi";
+import { fetchAPI, getHeroSection } from "@/lib/strapi";
 import { Service, StrapiResponse } from "@/types/strapi";
 
 async function getServices() {
@@ -20,6 +20,10 @@ async function getServices() {
 }
 
 export default async function Home() {
-  const services = await getServices();
-  return <HomeView services={services} />;
+  const [services, heroData] = await Promise.all([
+    getServices(),
+    getHeroSection(),
+  ]);
+
+  return <HomeView services={services} heroData={heroData} />;
 }
