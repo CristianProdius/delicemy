@@ -6,11 +6,17 @@ import FAQ from "../components/faq";
 import Hero from "../components/hero";
 import Products from "../../../../components/products";
 
-export const HomeView = () => {
+import { Service } from "@/types/strapi";
+
+interface ProductsViewProps {
+  services: Service[];
+}
+
+export const HomeView = ({ services }: ProductsViewProps) => {
   return (
     <>
       <Hero />
-      <Products services={[]} />
+      <Products services={services} />
       <About />
       <Contact />
       <FAQ />
