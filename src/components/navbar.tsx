@@ -17,7 +17,7 @@ import Image from "next/image";
 const DeliceLogo = () => {
   return (
     <a
-      href="#"
+      href="/"
       className="relative z-20 mr-4 flex items-center space-x-3 px-2 py-1 text-sm font-normal text-black"
     >
       {/* Logo placeholder - you can replace this with your actual logo */}

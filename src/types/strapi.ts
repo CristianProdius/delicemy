@@ -11,7 +11,6 @@ export interface StrapiResponse<T> {
 }
 
 export interface Service {
-  attributes: any;
   id: number;
   documentId: string;
   title: string;
