@@ -2,12 +2,25 @@
 import { motion } from "motion/react";
 import { HoverEffect } from "@/components/ui/card-hover-effect";
 import { Service } from "@/types/strapi";
+import { ProductsSectionContent } from "@/types/products-section";
+import {
+  BlocksRenderer,
+  type BlocksContent,
+} from "@strapi/blocks-react-renderer";
+import { JSX } from "react";
 
 interface ProductsProps {
   services: Service[];
+  content: ProductsSectionContent | null;
 }
 
-export default function ProductsSection({ services }: ProductsProps) {
+export default function ProductsSection({ services, content }: ProductsProps) {
+  // Default values if content is not available
+  const title = content?.title || "Our";
+  const highlightedWord = content?.highlightedWord || "Expertise";
+  const defaultDescription =
+    "From artisanal workshops to bespoke consulting, discover our comprehensive chocolate experiences crafted with passion and precision.";
+
   // Transform Strapi data to match your existing format
   const chocolateServices = services.map((service) => ({
     title: service.title,
@@ -36,19 +49,46 @@ export default function ProductsSection({ services }: ProductsProps) {
             viewport={{ once: true }}
             className="text-4xl lg:text-5xl font-light text-neutral-800 mb-4 tracking-tight"
           >
-            Our <span className="font-medium text-[#B8956A]">Expertise</span>
+            {title}{" "}
+            <span className="font-medium text-[#B8956A]">
+              {highlightedWord}
+            </span>
           </motion.h2>
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
             className="text-lg text-neutral-600 max-w-2xl mx-auto leading-relaxed"
           >
-            From artisanal workshops to bespoke consulting, discover our
-            comprehensive chocolate experiences crafted with passion and
-            precision.
-          </motion.p>
+            {content?.description ? (
+              <BlocksRenderer
+                content={content.description as BlocksContent}
+                blocks={{
+                  // Custom renderers for specific block types if needed
+                  paragraph: ({ children }) => (
+                    <p className="mb-4 last:mb-0">{children}</p>
+                  ),
+                  heading: ({ children, level }) => {
+                    const HeadingTag =
+                      `h${level}` as keyof JSX.IntrinsicElements;
+                    return (
+                      <HeadingTag className="font-semibold mb-2">
+                        {children}
+                      </HeadingTag>
+                    );
+                  },
+                }}
+                modifiers={{
+                  // Custom modifiers for text formatting
+                  bold: ({ children }) => <strong>{children}</strong>,
+                  italic: ({ children }) => <em>{children}</em>,
+                }}
+              />
+            ) : (
+              <p>{defaultDescription}</p>
+            )}
+          </motion.div>
         </motion.div>
 
         {/* Products Grid */}

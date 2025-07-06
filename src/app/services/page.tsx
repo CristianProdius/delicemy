@@ -1,5 +1,5 @@
 import { ProductsView } from "@/modules/services/ui/views/services-view";
-import { fetchAPI } from "@/lib/strapi";
+import { fetchAPI, getProductsSectionContent } from "@/lib/strapi";
 import { Service, StrapiResponse } from "@/types/strapi";
 
 async function getServices() {
@@ -21,7 +21,15 @@ async function getServices() {
 }
 
 export default async function Services() {
-  const services = await getServices();
+  const [services, productsSectionContent] = await Promise.all([
+    getServices(),
+    getProductsSectionContent(),
+  ]);
 
-  return <ProductsView services={services} />;
+  return (
+    <ProductsView
+      services={services}
+      productsSectionContent={productsSectionContent}
+    />
+  );
 }

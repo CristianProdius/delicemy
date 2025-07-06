@@ -10,7 +10,6 @@ interface HeroProps {
 }
 
 export default function DeliceHeroSection({ heroData }: HeroProps) {
-  console.log("Full heroData:", JSON.stringify(heroData, null, 2));
   // Fallback values if data is not available
   if (!heroData) return null;
 

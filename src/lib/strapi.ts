@@ -1,4 +1,8 @@
 import { HeroSection, StrapiResponse } from "@/types/hero";
+import {
+  ProductsSectionContent,
+  ProductsSectionResponse,
+} from "@/types/products-section";
 
 const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
 
@@ -51,6 +55,26 @@ export async function getHeroSection(): Promise<HeroSection | null> {
     return data.data;
   } catch (error) {
     console.error("Error fetching hero section:", error);
+    return null;
+  }
+}
+
+/**
+ * Fetch Products Section content
+ */
+export async function getProductsSectionContent(): Promise<ProductsSectionContent | null> {
+  const token =
+    process.env.STRAPI_API_TOKEN || process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
+
+  try {
+    const data = await fetchAPI<ProductsSectionResponse>("/products-section", {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : "",
+      },
+    });
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching products section content:", error);
     return null;
   }
 }
