@@ -1,3 +1,8 @@
+import { AboutSection, AboutSectionResponse } from "@/types/about-section";
+import {
+  ContactSection,
+  ContactSectionResponse,
+} from "@/types/contact-section";
 import { HeroSection, StrapiResponse } from "@/types/hero";
 import {
   ProductsSectionContent,
@@ -75,6 +80,49 @@ export async function getProductsSectionContent(): Promise<ProductsSectionConten
     return data.data;
   } catch (error) {
     console.error("Error fetching products section content:", error);
+    return null;
+  }
+}
+
+/**
+ * Fetch About Section data
+ */
+export async function getAboutSection(): Promise<AboutSection | null> {
+  const token =
+    process.env.STRAPI_API_TOKEN || process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
+
+  try {
+    const data = await fetchAPI<AboutSectionResponse>("/about-section", {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : "",
+      },
+    });
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching about section:", error);
+    return null;
+  }
+}
+
+/**
+ * Fetch Contact Section data
+ */
+export async function getContactSection(): Promise<ContactSection | null> {
+  const token =
+    process.env.STRAPI_API_TOKEN || process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
+
+  try {
+    const data = await fetchAPI<ContactSectionResponse>(
+      "/contact-section?populate[socialLinks]=*&populate[businessHours]=*&populate[locations]=*",
+      {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      }
+    );
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching contact section:", error);
     return null;
   }
 }

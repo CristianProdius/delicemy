@@ -16,10 +16,8 @@ interface ProductsProps {
 
 export default function ProductsSection({ services, content }: ProductsProps) {
   // Default values if content is not available
-  const title = content?.title || "Our";
-  const highlightedWord = content?.highlightedWord || "Expertise";
-  const defaultDescription =
-    "From artisanal workshops to bespoke consulting, discover our comprehensive chocolate experiences crafted with passion and precision.";
+  const title = content?.title;
+  const highlightedWord = content?.highlightedWord;
 
   // Transform Strapi data to match your existing format
   const chocolateServices = services.map((service) => ({
@@ -85,9 +83,7 @@ export default function ProductsSection({ services, content }: ProductsProps) {
                   italic: ({ children }) => <em>{children}</em>,
                 }}
               />
-            ) : (
-              <p>{defaultDescription}</p>
-            )}
+            ) : null}
           </motion.div>
         </motion.div>
 

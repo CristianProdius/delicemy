@@ -6,7 +6,7 @@ import Link from "next/link";
 import { HeroSection } from "@/types/hero";
 
 interface HeroProps {
-  heroData: HeroSection | null;
+  heroData: HeroSection;
 }
 
 export default function DeliceHeroSection({ heroData }: HeroProps) {

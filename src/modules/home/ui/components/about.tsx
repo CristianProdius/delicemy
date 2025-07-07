@@ -1,9 +1,46 @@
 "use client";
 import { motion } from "motion/react";
 import { useState } from "react";
+import { AboutSection } from "@/types/about-section";
 
-export default function About() {
+interface AboutProps {
+  content: AboutSection;
+}
+
+// Helper function to extract YouTube video ID
+function getYouTubeId(url: string): string {
+  const match = url.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/
+  );
+  return match ? match[1] : "";
+}
+
+export default function About({ content }: AboutProps) {
   const [isPlaying, setIsPlaying] = useState(false);
+
+  // Use content from Strapi or defaults
+  const title = content?.title;
+  const titleHighlight = content?.titleHighlight;
+  const titleMiddle = content?.titleMiddle;
+  const titleBottom = content?.titleBottom;
+  const description = content?.description?.trim();
+  const videoTitle = content?.videoTitle;
+  const videoSubtitle = content?.videoSubtitle;
+  const videoDuration = content?.videoDuration;
+  const videoUrl = content?.videoUrl;
+  const stats = content?.stats && content.stats.length > 0 ? content.stats : [];
+  const ctaText = content?.ctaText;
+  const ctaButtonText = content?.ctaButtonText;
+
+  // Get video thumbnail URL from Strapi or use default
+  const videoThumbnail = content?.videoThumbnail?.data?.attributes?.url
+    ? `${process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337"}${
+        content.videoThumbnail.data.attributes.url
+      }`
+    : "/video-thumbnail.jpg";
+
+  // Color array for stats (cycling through your brand colors)
+  const statColors = ["#B8956A", "#A67E52", "#C8A578", "#B8956A"];
 
   return (
     <section id="video" className="relative py-24 ">
@@ -23,10 +60,11 @@ export default function About() {
             viewport={{ once: true }}
             className="text-4xl lg:text-5xl font-light text-neutral-800 mb-6 tracking-tight"
           >
-            Discover the <span className="font-medium text-[#B8956A]">Art</span>{" "}
-            of
+            {title}{" "}
+            <span className="font-medium text-[#B8956A]">{titleHighlight}</span>{" "}
+            {titleMiddle}
             <br className="hidden sm:block" />
-            <span className="text-[#A67E52]"> Chocolate Mastery</span>
+            <span className="text-[#A67E52]"> {titleBottom}</span>
           </motion.h2>
 
           <motion.p
@@ -36,10 +74,7 @@ export default function About() {
             viewport={{ once: true }}
             className="text-lg text-neutral-600 max-w-3xl mx-auto leading-relaxed"
           >
-            Step into our world where passion meets precision. Watch as we
-            transform premium cocoa into extraordinary creations, sharing the
-            secrets of artisanal chocolate craftsmanship that have been
-            perfected through years of dedication and love.
+            {description}
           </motion.p>
         </motion.div>
 
@@ -76,11 +111,9 @@ export default function About() {
                 {/* Video title */}
                 <div className="space-y-2">
                   <h3 className="text-xl font-medium text-neutral-800">
-                    The DÉLICE Experience
+                    {videoTitle}
                   </h3>
-                  <p className="text-sm text-neutral-600">
-                    Behind the Scenes: Crafting Chocolate Perfection
-                  </p>
+                  <p className="text-sm text-neutral-600">{videoSubtitle}</p>
                 </div>
 
                 {/* Duration badge */}
@@ -94,7 +127,7 @@ export default function About() {
                     <circle cx="12" cy="12" r="10" />
                     <polyline points="12,6 12,12 16,14" />
                   </svg>
-                  3:24 minutes
+                  {videoDuration}
                 </div>
               </div>
 
@@ -110,15 +143,30 @@ export default function About() {
                 animate={{ opacity: 1 }}
                 className="absolute inset-0"
               >
-                <video
-                  className="w-full h-full object-cover"
-                  controls
-                  autoPlay
-                  poster="/video-thumbnail.jpg"
-                >
-                  <source src="/delice-video.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
+                {videoUrl.includes("youtube.com") ||
+                videoUrl.includes("youtu.be") ? (
+                  // YouTube embed
+                  <iframe
+                    className="w-full h-full border-0"
+                    src={`https://www.youtube.com/embed/${getYouTubeId(
+                      videoUrl
+                    )}?autoplay=1`}
+                    title={videoTitle}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  // Local video
+                  <video
+                    className="w-full h-full object-cover"
+                    controls
+                    autoPlay
+                    poster={videoThumbnail}
+                  >
+                    <source src={videoUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                )}
               </motion.div>
             )}
 
@@ -134,22 +182,17 @@ export default function About() {
             viewport={{ once: true }}
             className="mt-8 flex flex-wrap justify-center gap-8 text-center"
           >
-            <div className="space-y-1">
-              <p className="text-2xl font-light text-[#B8956A]">15+</p>
-              <p className="text-sm text-neutral-600">Years of Expertise</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-2xl font-light text-[#A67E52]">500+</p>
-              <p className="text-sm text-neutral-600">Students Trained</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-2xl font-light text-[#C8A578]">50+</p>
-              <p className="text-sm text-neutral-600">Signature Recipes</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-2xl font-light text-[#B8956A]">100%</p>
-              <p className="text-sm text-neutral-600">Artisanal Quality</p>
-            </div>
+            {stats.map((stat, index) => (
+              <div key={index} className="space-y-1">
+                <p
+                  className="text-2xl font-light"
+                  style={{ color: statColors[index % statColors.length] }}
+                >
+                  {stat.value}
+                </p>
+                <p className="text-sm text-neutral-600">{stat.label}</p>
+              </div>
+            ))}
           </motion.div>
 
           {/* Call to Action */}
@@ -160,11 +203,9 @@ export default function About() {
             viewport={{ once: true }}
             className="text-center mt-12"
           >
-            <p className="text-neutral-600 mb-6">
-              Ready to begin your own chocolate journey?
-            </p>
+            <p className="text-neutral-600 mb-6">{ctaText}</p>
             <button className="px-8 py-3 bg-transparent text-[#B8956A] font-medium border-2 border-[#B8956A] hover:border-[#A67E52] hover:bg-[#B8956A] hover:text-white transition-all duration-300 rounded-full tracking-wide">
-              Book Your Workshop Today
+              {ctaButtonText}
             </button>
           </motion.div>
         </motion.div>

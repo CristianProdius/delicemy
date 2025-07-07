@@ -3,6 +3,8 @@ import {
   fetchAPI,
   getHeroSection,
   getProductsSectionContent,
+  getAboutSection,
+  getContactSection,
 } from "@/lib/strapi";
 import { Service, StrapiResponse } from "@/types/strapi";
 
@@ -22,19 +24,37 @@ async function getServices() {
     return [];
   }
 }
-
 export default async function Home() {
-  const [services, heroData, productsSectionContent] = await Promise.all([
+  const [
+    services,
+    heroData,
+    productsSectionContent,
+    aboutSectionContent,
+    contactSectionContent,
+  ] = await Promise.all([
     getServices(),
     getHeroSection(),
     getProductsSectionContent(),
+    getAboutSection(),
+    getContactSection(),
   ]);
+
+  if (
+    !heroData ||
+    !productsSectionContent ||
+    !aboutSectionContent ||
+    !contactSectionContent
+  ) {
+    throw new Error("Hero section data is missing");
+  }
 
   return (
     <HomeView
       services={services}
       heroData={heroData}
       productsSectionContent={productsSectionContent}
+      aboutSectionContent={aboutSectionContent}
+      contactSectionContent={contactSectionContent}
     />
   );
 }
