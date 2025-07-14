@@ -3,6 +3,7 @@ import {
   ContactSection,
   ContactSectionResponse,
 } from "@/types/contact-section";
+import { FAQSection, FAQSectionResponse } from "@/types/faq-section";
 import { HeroSection, StrapiResponse } from "@/types/hero";
 import {
   ProductsSectionContent,
@@ -123,6 +124,29 @@ export async function getContactSection(): Promise<ContactSection | null> {
     return data.data;
   } catch (error) {
     console.error("Error fetching contact section:", error);
+    return null;
+  }
+}
+
+/**
+ * Fetch FAQ Section data
+ */
+export async function getFAQSection(): Promise<FAQSection | null> {
+  const token =
+    process.env.STRAPI_API_TOKEN || process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
+
+  try {
+    const data = await fetchAPI<FAQSectionResponse>(
+      "/faq-section?populate=*", // Simpler populate like contact-section
+      {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      }
+    );
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching FAQ section:", error);
     return null;
   }
 }

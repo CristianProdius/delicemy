@@ -11,6 +11,7 @@ import { HeroSection } from "@/types/hero";
 import { ProductsSectionContent } from "@/types/products-section";
 import { AboutSection } from "@/types/about-section";
 import { ContactSection } from "@/types/contact-section";
+import { FAQSection } from "@/types/faq-section";
 
 interface HomeViewProps {
   services: Service[];
@@ -18,6 +19,7 @@ interface HomeViewProps {
   productsSectionContent: ProductsSectionContent;
   aboutSectionContent: AboutSection;
   contactSectionContent: ContactSection;
+  faqSectionContent: FAQSection;
 }
 
 export const HomeView = ({
@@ -26,6 +28,7 @@ export const HomeView = ({
   productsSectionContent,
   aboutSectionContent,
   contactSectionContent,
+  faqSectionContent,
 }: HomeViewProps) => {
   return (
     <>
@@ -33,7 +36,7 @@ export const HomeView = ({
       <Products services={services} content={productsSectionContent} />
       <About content={aboutSectionContent} />
       <Contact content={contactSectionContent} />
-      <FAQ />
+      <FAQ content={faqSectionContent} />
     </>
   );
 };

@@ -5,6 +5,7 @@ import {
   getProductsSectionContent,
   getAboutSection,
   getContactSection,
+  getFAQSection,
 } from "@/lib/strapi";
 import { Service, StrapiResponse } from "@/types/strapi";
 
@@ -24,6 +25,7 @@ async function getServices() {
     return [];
   }
 }
+
 export default async function Home() {
   const [
     services,
@@ -31,21 +33,24 @@ export default async function Home() {
     productsSectionContent,
     aboutSectionContent,
     contactSectionContent,
+    faqSectionContent,
   ] = await Promise.all([
     getServices(),
     getHeroSection(),
     getProductsSectionContent(),
     getAboutSection(),
     getContactSection(),
+    getFAQSection(),
   ]);
 
   if (
     !heroData ||
     !productsSectionContent ||
     !aboutSectionContent ||
-    !contactSectionContent
+    !contactSectionContent ||
+    !faqSectionContent
   ) {
-    throw new Error("Hero section data is missing");
+    return <div>Error loading content</div>;
   }
 
   return (
@@ -55,6 +60,7 @@ export default async function Home() {
       productsSectionContent={productsSectionContent}
       aboutSectionContent={aboutSectionContent}
       contactSectionContent={contactSectionContent}
+      faqSectionContent={faqSectionContent}
     />
   );
 }
