@@ -34,9 +34,7 @@ export default function About({ content }: AboutProps) {
 
   // Get video thumbnail URL from Strapi or use default
   const videoThumbnail = content?.videoThumbnail?.data?.attributes?.url
-    ? `${process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337"}${
-        content.videoThumbnail.data.attributes.url
-      }`
+    ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${content.videoThumbnail.data.attributes.url}`
     : "/video-thumbnail.jpg";
 
   // Color array for stats (cycling through your brand colors)

@@ -10,11 +10,11 @@ import {
   MobileNavMenu,
 } from "@/components/ui/resizable-navbar";
 import { useState } from "react";
-
+import { useNavigation } from "@/context/navigation.context";
 import Image from "next/image";
 import Link from "next/link";
 
-// Updated DÉLICE Logo Component
+// DÉLICE Logo Component
 const DeliceLogo = () => {
   return (
     <Link
@@ -29,31 +29,65 @@ const DeliceLogo = () => {
   );
 };
 
+// Loading skeleton for navbar
+const NavbarSkeleton = () => {
+  return (
+    <div className="w-full h-[72px] lg:h-[80px] bg-white/80 backdrop-blur-sm">
+      <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+        <div className="w-32 h-8 bg-gray-200 animate-pulse rounded" />
+        <div className="hidden lg:flex items-center gap-8">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className="w-20 h-6 bg-gray-200 animate-pulse rounded"
+            />
+          ))}
+        </div>
+        <div className="flex gap-3">
+          <div className="w-20 h-9 bg-gray-200 animate-pulse rounded-full" />
+          <div className="w-20 h-9 bg-gray-200 animate-pulse rounded-full" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export function Nav() {
-  const navItems = [
-    {
-      name: "About Me",
-      link: "#aboutme",
-    },
-    {
-      name: "About Company",
-      link: "#aboutcompany",
-    },
-    {
-      name: "Délice School",
-      link: "#deliceschool",
-    },
-    {
-      name: "Délice Shop",
-      link: "#deliceshop",
-    },
-    {
-      name: "Services",
-      link: "/services",
-    },
+  const { navigation, loading, error } = useNavigation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  if (loading) {
+    return <NavbarSkeleton />;
+  }
+
+  if (error) {
+    console.error("Navigation error:", error);
+    // Fallback to default navigation if API fails
+  }
+
+  // Sort navigation items by order
+  const navItems = navigation?.navbar
+    ?.sort((a, b) => a.order - b.order)
+    ?.map((item) => ({
+      name: item.label,
+      link: item.url,
+      target: item.target,
+    })) || [
+    // Fallback navigation items
+    { name: "About Me", link: "#aboutme", target: "_self" },
+    { name: "About Company", link: "#aboutcompany", target: "_self" },
+    { name: "Délice School", link: "#deliceschool", target: "_self" },
+    { name: "Délice Shop", link: "#deliceshop", target: "_self" },
+    { name: "Services", link: "/services", target: "_self" },
   ];
 
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const ctaButtons = navigation?.ctaButtons?.sort(
+    (a, b) => a.order - b.order
+  ) || [
+    // Fallback buttons
+    { id: 1, text: "English", url: "#", variant: "secondary" as const },
+    { id: 2, text: "Contact", url: "/contact", variant: "primary" as const },
+  ];
 
   return (
     <div className="relative w-full">
@@ -66,18 +100,20 @@ export function Nav() {
             className="text-neutral-700 hover:text-[#B8956A]"
           />
           <div className="flex items-center gap-3">
-            <NavbarButton
-              variant="secondary"
-              className="bg-transparent text-[#B8956A] border border-[#B8956A]/30 hover:bg-[#B8956A]/10 hover:border-[#B8956A] transition-all duration-300 px-4 py-2 rounded-full text-sm font-medium"
-            >
-              English
-            </NavbarButton>
-            <NavbarButton
-              variant="primary"
-              className="bg-[#B8956A] text-white hover:bg-[#A67E52] transition-all duration-300 px-6 py-2 rounded-full text-sm font-medium shadow-lg hover:shadow-xl"
-            >
-              Contact
-            </NavbarButton>
+            {ctaButtons.map((button) => (
+              <NavbarButton
+                key={button.id}
+                variant={button.variant}
+                className={
+                  button.variant === "secondary"
+                    ? "bg-transparent text-[#B8956A] border border-[#B8956A]/30 hover:bg-[#B8956A]/10 hover:border-[#B8956A] transition-all duration-300 px-4 py-2 rounded-full text-sm font-medium"
+                    : "bg-[#B8956A] text-white hover:bg-[#A67E52] transition-all duration-300 px-6 py-2 rounded-full text-sm font-medium shadow-lg hover:shadow-xl"
+                }
+                onClick={() => (window.location.href = button.url)}
+              >
+                {button.text}
+              </NavbarButton>
+            ))}
           </div>
         </NavBody>
 
@@ -99,30 +135,36 @@ export function Nav() {
             <div className="w-full space-y-1">
               {navItems.map((item, idx) => (
                 <Link
-                  key={`mobile-link-${idx}`}
+                  key={idx}
                   href={item.link}
+                  target={item.target}
+                  className="block px-4 py-3 text-neutral-700 hover:text-[#B8956A] hover:bg-[#B8956A]/5 transition-colors duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block w-full px-4 py-3 text-neutral-700 hover:text-[#B8956A] hover:bg-[#B8956A]/5 rounded-lg transition-all duration-200 font-medium"
                 >
                   {item.name}
                 </Link>
               ))}
             </div>
 
-            {/* Mobile Action Buttons */}
-            <div className="w-full pt-4 border-t border-[#B8956A]/10 space-y-3">
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full px-4 py-3 bg-transparent text-[#B8956A] border border-[#B8956A]/30 hover:bg-[#B8956A]/10 hover:border-[#B8956A] transition-all duration-300 rounded-lg text-sm font-medium"
-              >
-                English
-              </button>
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full px-4 py-3 bg-[#B8956A] text-white hover:bg-[#A67E52] transition-all duration-300 rounded-lg text-sm font-medium shadow-lg"
-              >
-                Contact
-              </button>
+            {/* Mobile CTA Buttons */}
+            <div className="mt-6 space-y-3 px-4">
+              {ctaButtons.map((button) => (
+                <NavbarButton
+                  key={button.id}
+                  variant={button.variant}
+                  className={
+                    button.variant === "secondary"
+                      ? "w-full bg-transparent text-[#B8956A] border border-[#B8956A]/30"
+                      : "w-full bg-[#B8956A] text-white"
+                  }
+                  onClick={() => {
+                    window.location.href = button.url;
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  {button.text}
+                </NavbarButton>
+              ))}
             </div>
           </MobileNavMenu>
         </MobileNav>
